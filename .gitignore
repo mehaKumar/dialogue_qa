@@ -131,3 +131,4 @@ dmypy.json
 # dialogue_qa specific
 /data
 .vscode/settings.json
+/outputs
