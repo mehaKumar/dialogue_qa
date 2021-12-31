@@ -6,11 +6,11 @@ from numpy import mean
 
 # script to run slot filling on ../data/ output answers and eval
 dst = DialogueStateTracking()
-dst.slot_temp = ["Target_Object-ARG", "Place-Arg", "Start_Time-Arg", "End_Time-Arg"]
-dst.slot_questions = ["What was stolen?" ,
-                     "Where did the theft take place?",
-                     "When was the item last seen?",
-                     "When was the item stolen?"]
+dst.slot_temp = ["Target_Object-ARG", "Place-Arg"]#, "Start_Time-Arg", "End_Time-Arg"]
+dst.slot_questions = ["What object was stolen?" ,
+                     "Where did the theft take place?"]
+                    #  "When did you last see the stolen object?",
+                    #  "When did you notice the object was missing?"]
 
 val_data_path = "./data/val/"
 val_gold_data_path = "./data/val_gold/"
@@ -34,6 +34,16 @@ for fname in fnames:
 print(f"Number of dialogues: {len(fnames)}")
 print(f"Average accuracy: {mean(accs):0.2f}")
 print(f"Average F1: {mean(f1s):0.2f}")
+
+f = open("outputs/ablations.txt", 'a')
+f.write("Questions: \n")
+f.write(str(dst.slot_questions) + "\n")
+f.write("Slots: \n")
+f.write(str(dst.slot_temp) + "\n")
+f.write(f"Number of dialogues: {len(fnames)}\n")
+f.write(f"Average accuracy: {mean(accs):0.2f}\n")
+f.write(f"Average F1: {mean(f1s):0.2f}\n")
+f.write("====================================\n")
 
 
 
