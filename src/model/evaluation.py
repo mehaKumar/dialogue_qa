@@ -143,13 +143,13 @@ def annotation_to_gold(annot_lines, diag_lines, slot_temp):
             toks = line[2:].split()
             for tok in toks:
                 tag = tok.split(":")
-                if tag[0] == "Start_Time-Arg":
+                if tag[0].startswith("Start_Time-Arg"):
                     slot_2_tag["Start_Time-Arg"] += [tag[1]]
-                elif tag[0] == "End_Time-Arg":
+                elif tag[0].startswith("End_Time-Arg"):
                     slot_2_tag["End_Time-Arg"] += [tag[1]]
-                elif tag[0] == "Target_Object-ARG":
+                elif tag[0].startswith("Target_Object-ARG"):
                     slot_2_tag["Target_Object-ARG"] += [tag[1]]
-                elif tag[0] == "Place-Arg":
+                elif tag[0].startswith("Place-Arg"):
                     slot_2_tag["Place-Arg"] += [tag[1]]
               
 
@@ -169,7 +169,7 @@ def annotation_to_gold(annot_lines, diag_lines, slot_temp):
                 loc = annot_dict[tag][0]
                 toks = loc.split()
                 if int(toks[1]) <= len_total:
-                    slots_gold_i[slot] = annot_dict[tag][1]
+                    slots_gold_i[slot].append(annot_dict[tag][1])
         slots_gold.append(slots_gold_i)
         
     # print(slots_gold)
@@ -178,7 +178,14 @@ def annotation_to_gold(annot_lines, diag_lines, slot_temp):
 
 # testing
 # slot_temp = ["Target_Object-ARG", "Place-Arg", "Start_Time-Arg", "End_Time-Arg"]
-
+# f = open('data/val_gold/event_1206297.ann')
+# annot_lines = f.readlines()
+# f.close()
+# f = open('data/val/event_1206297.txt')
+# diag_lines = f.readlines()
+# f.close()
+# slots_gold = annotation_to_gold(annot_lines, diag_lines, slot_temp)
+# print(slots_gold)
 # gold = {"Target_Object-ARG":["bike lights (both front and rear)"], "Place-Arg": ["in front of [ORG]"],
 #         "Start_Time-Arg": ["This evening ([DATE]), between #:##"], "End_Time-Arg": ["#:##"]}
 

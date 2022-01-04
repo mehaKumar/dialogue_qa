@@ -11,13 +11,15 @@ max_span_length = 20 # Max length of one answer span
 min_score = 0 # Min score for an answer span
 
 class QA_Model:
-    def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("distilbert-base-cased-distilled-squad")
-        self.model = AutoModelForQuestionAnswering.from_pretrained("distilbert-base-cased-distilled-squad")
+    def __init__(self, model):
+        self.tokenizer = AutoTokenizer.from_pretrained(model)
+        self.model = AutoModelForQuestionAnswering.from_pretrained(model)
     
-    def answer(self, text, questions):
-        answerss = []
-        for question in questions:
+    def answer(self, text, questions, slot_temp):
+        answerss = {}
+        for i in range(len(questions)):
+            question = questions[i]
+            slot = slot_temp[i]
             inputs = self.tokenizer.encode_plus(question, text, add_special_tokens=True, return_tensors="pt")
             input_ids = inputs["input_ids"].tolist()[0]
 
@@ -29,23 +31,23 @@ class QA_Model:
             score = torch.max(answer_start_scores) + torch.max(answer_end_scores)
             
             if answer_start < 1: 
-                answer = "[None]" # cannot start with CLS
+                answer = [] # cannot start with CLS
             elif answer_end - answer_start + 1 > max_span_length:
-                answer = "[None]" # cannot be longer than hyperparam
+                answer = [] # cannot be longer than hyperparam
             elif score < min_score:
-                answer = "[None]" # cannot be < hyperparam
+                answer = [] # cannot be < hyperparam
             else:
-                answer = self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_ids[answer_start:answer_end]))
+                answer = [self.tokenizer.convert_tokens_to_string(self.tokenizer.convert_ids_to_tokens(input_ids[answer_start:answer_end]))]
 #                 print(f"Question: {question}")
 #                 print(f"Answer: {answer}")
 #                 print(f"Score: {score}") 
                 
-            answerss.append(answer)
+            answerss[slot] = answer
         return answerss
 
 class DialogueStateTracking:
-    def __init__(self):
-        self.qa = QA_Model()
+    def __init__(self, model):
+        self.qa = QA_Model(model)
         self.slot_temp = [] # slot template
         self.slot_questions = [] # questions corresponding to slot template
         
@@ -55,11 +57,7 @@ class DialogueStateTracking:
         answers = [] # length of dialogue
         for i in range(len(dialogue)):
             section = " ".join(dialogue[:i+1])
-            answers_i = self.qa.answer(section, self.slot_questions)
-            answers_i_dict = {}
-            for j in range(len(answers_i)):
-                # TODO: filter based on score, so you don't fill every slot every turn
-                answers_i_dict[self.slot_temp[j]] = [answers_i[j]]
+            answers_i_dict = self.qa.answer(section, self.slot_questions, self.slot_temp)
             answers.append(answers_i_dict)
         return answers
 
