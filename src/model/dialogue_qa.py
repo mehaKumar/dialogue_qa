@@ -12,8 +12,9 @@ min_score = 0 # Min score for an answer span
 
 class QA_Model:
     def __init__(self, model):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.tokenizer = AutoTokenizer.from_pretrained(model)
-        self.model = AutoModelForQuestionAnswering.from_pretrained(model)
+        self.model = AutoModelForQuestionAnswering.from_pretrained(model).to(self.device)
     
     def answer(self, text, questions, slot_temp):
         answerss = {}
@@ -21,6 +22,7 @@ class QA_Model:
             question = questions[i]
             slot = slot_temp[i]
             inputs = self.tokenizer.encode_plus(question, text, add_special_tokens=True, return_tensors="pt")
+            inputs = inputs.to(self.device)
             input_ids = inputs["input_ids"].tolist()[0]
 
             text_tokens = self.tokenizer.convert_ids_to_tokens(input_ids)

@@ -4,6 +4,8 @@ from os import listdir
 from os.path import isfile, join
 from numpy import mean
 
+from tqdm import tqdm
+
 # script to run slot filling on ../data/ output answers and eval
 model = "deepset/roberta-base-squad2"
 dst = DialogueStateTracking(model)
@@ -20,7 +22,7 @@ output_path = "./outputs/val_pred_dict/"
 fnames = [f for f in listdir(val_data_path) if isfile(join(val_data_path, f))]
 accs = []
 f1s = []
-for fname in fnames:
+for fname in tqdm(fnames):
     f = open(val_data_path + fname)
     dialogue = f.readlines()
     slots_pred = dst.predict_slots(dialogue)
