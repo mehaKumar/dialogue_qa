@@ -7,16 +7,15 @@ from numpy import mean
 # script to run slot filling on ../data/ output answers and eval
 model = "deepset/roberta-base-squad2"
 dst = DialogueStateTracking(model)
-dst.slot_temp = ["Target_Object-ARG", "Place-Arg", "Start_Time-Arg", "End_Time-Arg"]
-dst.slot_questions = ["What object was stolen?" ,
-                     "Where did the theft take place?",
-                     "When did you last see the stolen object?",
-                     "When did you notice the object was missing?"]
+dst.slot_temp = ["Attacker-Arg", "Place-Arg", "Target-Arg"]
+dst.slot_questions = ["Who is the attacker?" ,
+                     "Who is the victim?",
+                     "Where is the harassment taking place?"]
 
-val_data_path = "./data/val/"
-val_gold_data_path = "./data/val_gold/"
-val_gold_dict_path = "./data/val_gold_dict/"
-output_path = "./outputs/val_pred_dict/"
+val_data_path = "./data/val_h/"
+val_gold_data_path = "./data/val_gold_h/"
+val_gold_dict_path = "./data/val_gold_dict_h/"
+output_path = "./outputs/val_pred_dict_h/"
 fnames = [f for f in listdir(val_data_path) if isfile(join(val_data_path, f))]
 accs = []
 f1s = []
@@ -47,7 +46,7 @@ print(f"Number of dialogues: {len(fnames)}")
 print(f"Average accuracy: {mean(accs):0.2f}")
 print(f"Average F1: {mean(f1s):0.2f}")
 
-f = open("outputs/ablations.txt", 'a')
+f = open("outputs/ablations_h.txt", 'a')
 f.write(f"Model: {model}\n")
 f.write("Questions: \n")
 f.write(str(dst.slot_questions) + "\n")

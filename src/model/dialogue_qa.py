@@ -20,7 +20,7 @@ class QA_Model:
         for i in range(len(questions)):
             question = questions[i]
             slot = slot_temp[i]
-            inputs = self.tokenizer.encode_plus(question, text, add_special_tokens=True, return_tensors="pt")
+            inputs = self.tokenizer.encode_plus(question, text, add_special_tokens=True, return_tensors="pt", max_length=512, truncation=True) #
             input_ids = inputs["input_ids"].tolist()[0]
 
             text_tokens = self.tokenizer.convert_ids_to_tokens(input_ids)
@@ -32,8 +32,8 @@ class QA_Model:
             
             if answer_start < 1: 
                 answer = [] # cannot start with CLS
-            elif answer_end - answer_start + 1 > max_span_length:
-                answer = [] # cannot be longer than hyperparam
+            elif answer_end - answer_start + 1 > max_span_length or answer_end - answer_start + 1 < 1:
+                answer = [] # cannot be longer than hyperparam, or empty
             elif score < min_score:
                 answer = [] # cannot be < hyperparam
             else:
@@ -59,5 +59,15 @@ class DialogueStateTracking:
             section = " ".join(dialogue[:i+1])
             answers_i_dict = self.qa.answer(section, self.slot_questions, self.slot_temp)
             answers.append(answers_i_dict)
+
+        # Carry through all predicted slots
+        for i in range(len(answers) - 1):
+            prev_ans = answers[i]
+            ans = answers[i + 1]
+            for slot in self.slot_temp:
+                for p_a in prev_ans[slot]:
+                    if p_a not in ans[slot]:
+                        ans[slot].append(p_a)
+            answers[i + 1] = ans
         return answers
 

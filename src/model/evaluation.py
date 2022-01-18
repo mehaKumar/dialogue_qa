@@ -125,7 +125,9 @@ def compute_f1(gold, pred, slot_temp):
 
 def annotation_to_gold(annot_lines, diag_lines, slot_temp):
     # turn annotation file into list of dict
-    slot_2_tag = {"Target_Object-ARG":[], "Place-Arg":[], "Start_Time-Arg":[], "End_Time-Arg":[]}
+    slot_2_tag = {}
+    for s in slot_temp:
+        slot_2_tag[s] = []
 
     #make dict of tags to location and string
     annot_dict = {}
@@ -143,14 +145,10 @@ def annotation_to_gold(annot_lines, diag_lines, slot_temp):
             toks = line[2:].split()
             for tok in toks:
                 tag = tok.split(":")
-                if tag[0].startswith("Start_Time-Arg"):
-                    slot_2_tag["Start_Time-Arg"] += [tag[1]]
-                elif tag[0].startswith("End_Time-Arg"):
-                    slot_2_tag["End_Time-Arg"] += [tag[1]]
-                elif tag[0].startswith("Target_Object-ARG"):
-                    slot_2_tag["Target_Object-ARG"] += [tag[1]]
-                elif tag[0].startswith("Place-Arg"):
-                    slot_2_tag["Place-Arg"] += [tag[1]]
+                for s in slot_temp:
+                    if tag[0].startswith(s):
+                        slot_2_tag[s] += [tag[1]]
+                        break
               
 
     # print(slot_2_tag)
@@ -161,7 +159,9 @@ def annotation_to_gold(annot_lines, diag_lines, slot_temp):
     len_total = 0
     for line in diag_lines:
         len_total += len(line)
-        slots_gold_i = {"Target_Object-ARG":[], "Place-Arg":[], "Start_Time-Arg":[], "End_Time-Arg":[]}
+        slots_gold_i = {}
+        for s in slot_temp:
+            slots_gold_i[s] = []
         # for each slot, add any gold annotated strings which are in the dialogue history
         for slot in slot_temp:
             tags = slot_2_tag[slot]
