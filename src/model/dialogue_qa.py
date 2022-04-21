@@ -21,7 +21,10 @@ class QA_Model:
         for i in range(len(questions)):
             question = questions[i]
             slot = slot_temp[i]
-            inputs = self.tokenizer.encode_plus(question, text, add_special_tokens=True, return_tensors="pt")
+            inputs = self.tokenizer.encode_plus(
+                question, text, add_special_tokens=True, return_tensors="pt",
+                truncation= True, max_length = 512, padding='max_length'
+                )
             inputs = inputs.to(self.device)
             input_ids = inputs["input_ids"].tolist()[0]
 
